@@ -13,13 +13,13 @@ struct RecordType
 struct HashType
 {
 	struct RecordType *pData;
-	int dataSz;
+	int count;
 };
 
 // Compute the hash function
 int hash(int x)
 {
-	return x % 10;
+	return x % hashSz;
 }
 
 // parses input file to an integer array
@@ -77,18 +77,20 @@ void printRecords(struct RecordType pData[], int dataSz)
 // index x -> id, name, order -> id, name, order ....
 void displayRecordsInHash(struct HashType *pHashArray, int hashSz)
 {
-	int i;
+	int i, j;
+	struct RecordType *pRecord;
 
-	for (i=0;i<hashSz;++i)
+	for (i=0; i < hashSz; ++i)
 	{
-		// if index is occupied with any records, print all
-		pRecord =(pHashArray + i)->pData;
-		if(pRecord != NULL)
+		if(pHashArray[i].count > 0)
 		{
-			printf("index %d -> ", i);
-			for(j = 0; j < (pHashArray + i) -> dataSz; ++j)
+			printf("Index %d -> ", i);
+			pRecord = pHashArray[i].pData;
+			for(j = 0; j < pHashArray[i].count; ++j)
 			{
 				printf("%d %c %d -> ", pRecord[j].id, pRecord[j].name, pRecord[j].order);
+				if (j < pHashArray[i].count - 1)
+					printf(" -> ");
 			}
 			printf("\n");
 		}
@@ -98,34 +100,20 @@ void displayRecordsInHash(struct HashType *pHashArray, int hashSz)
 int main(void)
 {
 	struct RecordType *pRecords;
-	struct HashType hashArray[10];
+	struct HashType *pHashTable;
 	
 	int recordSz = 0;
+	int hashSz = 10;
 	int i, hashindx;
 	
 	recordSz = parseData("input.txt", &pRecords);
 	printRecords(pRecords, recordSz);
 	// Your hash implementation
 	
-	for(i = 0; i < 10; ++i)
+	for (int i = 0; i < recordSz; i++)
 	{
-		hashArray[i].pData = NULL;
-		hashArray[i].dataSz = 0;
+		insertRecord(hashTable, pRecords[i]);
 	}
-	
-	for (i = 0; i < recordSz; ++i)
-	{
-		hasindx = hash(pRecords[i].id % hashSz;
-			       while (hashArray[hashindx].record.id != 0)
-			       {
-				       hashindx = (hashindx + 1) % hashSz;
-			       }
-			       hashArray[hashindx].record = pRecords[i];
-	}
-			       
-	displayRecordsInHash(hashArray, hashSz);
-			       
-	free(pRecords);
 			
 	return 0;
 			       
