@@ -17,7 +17,7 @@ struct HashType
 };
 
 // Compute the hash function
-int hash(int x)
+int hash(int x, int hashSz)
 {
 	return x % hashSz;
 }
@@ -97,27 +97,72 @@ void displayRecordsInHash(struct HashType *pHashArray, int hashSz)
 	}
 }
 
+void insertRecord(struct HashType *hashTable, struct RecordType record, int hashSz)
+{
+    int index = hash(record.id, hashSz);
+    while (hashTable[index].count > 0)
+    {
+        index = (index + 1) % hashSz;
+    }
+    hashTable[index].pData = (struct RecordType*) malloc(sizeof(struct RecordType));
+    if (hashTable[index].pData == NULL)
+    {
+        printf("Cannot allocate memory\n");
+        exit(-1);
+    }
+    *(hashTable[index].pData) = record;
+    hashTable[index].count++;
+}
+
+
 int main(void)
 {
-	struct RecordType *pRecords;
-	struct HashType *pHashTable;
-	
-	int recordSz = 0;
+    struct RecordType *pRecords;
+    struct HashType *pHashTable;
+    int recordSz = 0;
+    int i;
 	int hashSz = 10;
-	int i, hashindx;
-	
-	recordSz = parseData("input.txt", &pRecords);
-	printRecords(pRecords, recordSz);
-	// Your hash implementation
-	
-	for (int i = 0; i < recordSz; i++)
-	{
-		insertRecord(hashTable, pRecords[i]);
-	}
-			
-	return 0;
-			       
+    recordSz = parseData("input.txt", &pRecords);
+    printRecords(pRecords, recordSz);
+
+    // Allocate memory for the hash table
+    pHashTable = (struct HashType*) malloc(sizeof(struct HashType) * hashSz);
+    if (pHashTable == NULL)
+    {
+        printf("Cannot allocate memory\n");
+        exit(-1);
+    }
+
+    // Initialize the hash table
+    for (i = 0; i < hashSz; ++i)
+    {
+        pHashTable[i].pData = NULL;
+        pHashTable[i].count = 0;
+    }
+
+    // Insert the records into the hash table
+    for (i = 0; i < recordSz; ++i)
+    {
+        insertRecord(pHashTable, pRecords[i], hashSz);
+    }
+
+    // Display the records in the hash table
+    displayRecordsInHash(pHashTable, hashSz);
+
+    // Free memory allocated for the hash table and records
+    for (i = 0; i < hashSz; ++i)
+    {
+        if (pHashTable[i].count > 0)
+        {
+            free(pHashTable[i].pData);
+        }
+    }
+    free(pHashTable);
+    free(pRecords);
+
+    return 0;
 }
+
 
 
 
